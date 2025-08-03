@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <title>Scanly | تست امنیت وب‌سایت</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>آیا سایتت امنه؟ 🔍</h1>
+        <form method="POST" action="/scan">
+            <input type="text" name="url" placeholder="آدرس سایتت رو وارد کن" required>
+            
+            <h3>ابزارهای مورد نظر:</h3>
+            <div class="checkbox-group">
+                <label class="checkbox-container">
+                    بررسی SSL
+                    <input type="checkbox" name="tools" value="ssl">
+                    <span class="checkmark"></span>
+                </label>
+                
+                <label class="checkbox-container">
+                    شناسایی CMS
+                    <input type="checkbox" name="tools" value="cms">
+                    <span class="checkmark"></span>
+                </label>
+                
+                <label class="checkbox-container">
+                    بررسی هدرهای امنیتی
+                    <input type="checkbox" name="tools" value="headers">
+                    <span class="checkmark"></span>
+                </label>
+                
+                <label class="checkbox-container">
+                    فایل robots.txt
+                    <input type="checkbox" name="tools" value="robots">
+                    <span class="checkmark"></span>
+                </label>
+                
+                <label class="checkbox-container">
+                    اسکن پورت‌های باز
+                    <input type="checkbox" name="tools" value="ports">
+                    <span class="checkmark"></span>
+                </label>
+                
+                <label class="checkbox-container">
+                    انتخاب همه
+                    <input type="checkbox" onclick="toggleAll(this)">
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            
+            <button type="submit">شروع اسکن</button>
+        </form>
+    </div>
+    
+    <script>
+    function toggleAll(source) {
+        let checkboxes = document.getElementsByName('tools');
+        for(let i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = source.checked;
+        }
+    }
+    </script>
+</body>
+</html>

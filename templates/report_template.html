@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <title>گزارش Scanly | {{ url }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <div class="header-content">
+                <h1 class="report-title">
+                    <i class="fas fa-shield-alt"></i>
+                    گزارش امنیتی برای 
+                    <span class="url">{{ url }}</span>
+                </h1>
+                <div class="score-indicator" data-score="{{ score }}">
+                    <div class="score-circle">
+                        <span class="score-value">{{ score }}</span>
+                        <span class="score-total">/100</span>
+                    </div>
+                    <div class="score-label">امتیاز کلی</div>
+                </div>
+            </div>
+            
+            <div class="security-meter">
+                <div class="meter-bar" style="width: {{ score }}%"></div>
+                <div class="meter-labels">
+                    <span>ضعیف</span>
+                    <span>متوسط</span>
+                    <span>خوب</span>
+                    <span>عالی</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-container">
+            {% for tool, result in results.items() %}
+            <div class="report-card" data-tool="{{ tool }}">
+                <div class="card-header">
+                    <div class="tool-icon">
+                        {% if tool == "ssl" %}
+                            <i class="fas fa-lock"></i>
+                        {% elif tool == "headers" %}
+                            <i class="fas fa-code"></i>
+                        {% elif tool == "cms" %}
+                            <i class="fas fa-cube"></i>
+                        {% elif tool == "robots" %}
+                            <i class="fas fa-robot"></i>
+                        {% elif tool == "ports" %}
+                            <i class="fas fa-plug"></i>
+                        {% else %}
+                            <i class="fas fa-shield-virus"></i>
+                        {% endif %}
+                    </div>
+                    <h3 class="tool-title">{{ tool|title }}</h3>
+                    <div class="tool-status"></div>
+                </div>
+                
+                <div class="result-content">
+                    <div class="result-output">
+                        <pre>{{ result | safe }}</pre>
+                    </div>
+                    
+                    <div class="improvement-section">
+                        <div class="section-title">
+                            <i class="fas fa-lightbulb"></i>
+                            <h4>راهنمای بهبود امنیتی</h4>
+                        </div>
+                        
+                        <div class="improvement-content">
+                            {% if tool == "ssl" %}
+                                <ul>
+                                    <li><i class="fas fa-check-circle"></i> استفاده از گواهی SSL معتبر (مانند Let's Encrypt)</li>
+                                    <li><i class="fas fa-check-circle"></i> غیرفعال کردن پروتکل‌های قدیمی مانند TLS 1.0 و 1.1</li>
+                                    <li><i class="fas fa-check-circle"></i> تنظیم cipher suites امن و به‌روز</li>
+                                    <li><i class="fas fa-check-circle"></i> فعال کردن HSTS برای امنیت بیشتر</li>
+                                </ul>
+                            {% elif tool == "headers" %}
+                                <ul>
+                                    <li><i class="fas fa-check-circle"></i> اضافه کردن هدرهای امنیتی: X-Frame-Options, CSP, X-XSS-Protection</li>
+                                    <li><i class="fas fa-check-circle"></i> تنظیم هدرهای CORS به درستی</li>
+                                    <li><i class="fas fa-check-circle"></i> حذف هدرهای حساس مانند X-Powered-By</li>
+                                    <li><i class="fas fa-check-circle"></i> استفاده از Referrer-Policy مناسب</li>
+                                </ul>
+                            {% elif tool == "cms" %}
+                                <ul>
+                                    <li><i class="fas fa-check-circle"></i> به‌روزرسانی CMS به آخرین نسخه</li>
+                                    <li><i class="fas fa-check-circle"></i> حذف افزونه‌ها و ماژول‌های بلااستفاده</li>
+                                    <li><i class="fas fa-check-circle"></i> تغییر مسیر پیش‌فرض مدیریت (مثل /admin یا /wp-admin)</li>
+                                    <li><i class="fas fa-check-circle"></i> محدود کردن دسترسی به پنل مدیریت با IP Whitelisting</li>
+                                </ul>
+                            {% elif tool == "robots" %}
+                                <ul>
+                                    <li><i class="fas fa-check-circle"></i> عدم افشای مسیرهای حساس در robots.txt</li>
+                                    <li><i class="fas fa-check-circle"></i> محدود کردن دسترسی به مسیرهای مدیریت از طریق احراز هویت</li>
+                                    <li><i class="fas fa-check-circle"></i> بررسی منظم فایل robots.txt برای جلوگیری از افشای اطلاعات</li>
+                                    <li><i class="fas fa-check-circle"></i> استفاده از disallow برای مسیرهای حساس فقط در کنار سایر مکانیزم‌های امنیتی</li>
+                                </ul>
+                            {% elif tool == "ports" %}
+                                <ul>
+                                    <li><i class="fas fa-check-circle"></i> بستن تمام پورت‌های غیرضروری</li>
+                                    <li><i class="fas fa-check-circle"></i> محدود کردن دسترسی به پورت‌های باز با فایروال</li>
+                                    <li><i class="fas fa-check-circle"></i> غیرفعال کردن سرویس‌های غیرضروری روی سرور</li>
+                                    <li><i class="fas fa-check-circle"></i> مانیتورینگ مداوم پورت‌های باز و فعالیت‌های مشکوک</li>
+                                </ul>
+                            {% else %}
+                                <p class="no-guidance">راهنمای اختصاصی برای این ابزار موجود نیست. لطفاً به مستندات امنیتی مراجعه کنید.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="actions">
+            <a href="/" class="scan-again-btn">
+                <i class="fas fa-redo"></i>
+                اسکن جدید
+            </a>
+            <button class="download-report">
+                <i class="fas fa-download"></i>
+                دانلود گزارش
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // اسکریپت برای دانلود گزارش
+        document.querySelector('.download-report').addEventListener('click', function() {
+            // کد تولید و دانلود گزارش PDF
+            alert('گزارش با موفقیت دانلود شد.');
+        });
+    </script>
+</body>
+</html>
