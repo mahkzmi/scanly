@@ -1,66 +1,63 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html dir="rtl" lang="fa">
 <head>
+    <meta charset="UTF-8">
     <title>Scanly | تست امنیت وب‌سایت</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>آیا سایتت امنه؟ 🔍</h1>
-        <form method="POST" action="/scan">
-            <input type="text" name="url" placeholder="آدرس سایتت رو وارد کن" required>
-            
-            <h3>ابزارهای مورد نظر:</h3>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    بررسی SSL
-                    <input type="checkbox" name="tools" value="ssl">
-                    <span class="checkmark"></span>
+<body class="bg-gray-100 font-sans">
+    <div class="max-w-lg mx-auto mt-12 bg-white shadow-lg rounded-2xl p-6">
+        <h1 class="text-2xl font-bold text-center mb-6">آیا سایتت امنه؟ 🔍</h1>
+
+        <form method="POST" action="/scan" class="space-y-6">
+            <input type="text" name="url" placeholder="آدرس سایتت رو وارد کن"
+                   required
+                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+
+            <h3 class="font-semibold">ابزارهای مورد نظر:</h3>
+            <div class="space-y-3">
+                <label class="flex items-center space-x-2 space-x-reverse">
+                    <input type="checkbox" name="tools" value="ssl" class="w-4 h-4 text-blue-600 rounded">
+                    <span>بررسی SSL</span>
                 </label>
-                
-                <label class="checkbox-container">
-                    شناسایی CMS
-                    <input type="checkbox" name="tools" value="cms">
-                    <span class="checkmark"></span>
+
+                <label class="flex items-center space-x-2 space-x-reverse">
+                    <input type="checkbox" name="tools" value="cms" class="w-4 h-4 text-blue-600 rounded">
+                    <span>شناسایی CMS</span>
                 </label>
-                
-                <label class="checkbox-container">
-                    بررسی هدرهای امنیتی
-                    <input type="checkbox" name="tools" value="headers">
-                    <span class="checkmark"></span>
+
+                <label class="flex items-center space-x-2 space-x-reverse">
+                    <input type="checkbox" name="tools" value="headers" class="w-4 h-4 text-blue-600 rounded">
+                    <span>بررسی هدرهای امنیتی</span>
                 </label>
-                
-                <label class="checkbox-container">
-                    فایل robots.txt
-                    <input type="checkbox" name="tools" value="robots">
-                    <span class="checkmark"></span>
+
+                <label class="flex items-center space-x-2 space-x-reverse">
+                    <input type="checkbox" name="tools" value="robots" class="w-4 h-4 text-blue-600 rounded">
+                    <span>فایل robots.txt</span>
                 </label>
-                
-                <label class="checkbox-container">
-                    اسکن پورت‌های باز
-                    <input type="checkbox" name="tools" value="ports">
-                    <span class="checkmark"></span>
+
+                <label class="flex items-center space-x-2 space-x-reverse">
+                    <input type="checkbox" name="tools" value="ports" class="w-4 h-4 text-blue-600 rounded">
+                    <span>اسکن پورت‌های باز</span>
                 </label>
-                
-                <label class="checkbox-container">
-                    انتخاب همه
-                    <input type="checkbox" onclick="toggleAll(this)">
-                    <span class="checkmark"></span>
+
+                <label class="flex items-center space-x-2 space-x-reverse">
+                    <input type="checkbox" onclick="toggleAll(this)" class="w-4 h-4 text-blue-600 rounded">
+                    <span>انتخاب همه</span>
                 </label>
             </div>
-            
-            <button type="submit">شروع اسکن</button>
+
+            <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+                شروع اسکن
+            </button>
         </form>
     </div>
-    
+
     <script>
-    function toggleAll(source) {
-        let checkboxes = document.getElementsByName('tools');
-        for(let i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = source.checked;
+        function toggleAll(source) {
+            document.querySelectorAll('input[name="tools"]').forEach(cb => cb.checked = source.checked);
         }
-    }
     </script>
 </body>
 </html>
