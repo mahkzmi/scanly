@@ -2,6 +2,7 @@
 <html dir="rtl" lang="fa">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scanly | تست امنیت وب‌سایت</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -11,6 +12,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
         }
         
         .glass-card {
@@ -32,32 +34,14 @@
             box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
         }
         
-        input:focus {
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        .loading-spinner {
+            border-top-color: #667eea;
+            animation: spinner 0.8s linear infinite;
         }
         
-        .checkbox:checked {
-            background-color: #667eea;
-            border-color: #667eea;
-        }
-        
-        .checkbox {
-            transition: all 0.2s ease;
-        }
-        
-        .tooltip {
-            position: relative;
-        }
-        
-        .tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        .tooltip-text {
-            visibility: hidden;
-            opacity: 0;
-            transition: all 0.3s ease;
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -76,11 +60,11 @@
         
         <h1 class="text-3xl font-bold text-center mb-6 text-gray-800 tracking-tight">آیا سایت شما امن است؟</h1>
         
-        <form method="POST" action="/scan" class="space-y-6">
+        <div id="scanForm" class="space-y-6">
             <div class="relative">
                 <input
                     type="text"
-                    name="url"
+                    id="scanUrl"
                     placeholder="آدرس سایت را وارد کنید..."
                     required
                     class="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-gray-800 text-lg placeholder-gray-400 focus:outline-none focus:border-indigo-300 bg-white/70 transition-all duration-200"
@@ -100,36 +84,36 @@
                     </svg>
                     ابزارهای مورد نظر:
                 </h3>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-3" id="toolsContainer">
                     <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
-                        <input type="checkbox" name="tools" value="ssl" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <input type="checkbox" name="tools" value="ssl" class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                         <span class="text-gray-700">بررسی SSL</span>
                     </label>
                     <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
-                        <input type="checkbox" name="tools" value="cms" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <input type="checkbox" name="tools" value="cms" class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                         <span class="text-gray-700">شناسایی CMS</span>
                     </label>
                     <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
-                        <input type="checkbox" name="tools" value="headers" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <input type="checkbox" name="tools" value="headers" class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                         <span class="text-gray-700">بررسی هدرها</span>
                     </label>
                     <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
-                        <input type="checkbox" name="tools" value="robots" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <input type="checkbox" name="tools" value="robots" class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                         <span class="text-gray-700">فایل robots.txt</span>
                     </label>
                     <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
-                        <input type="checkbox" name="tools" value="ports" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <input type="checkbox" name="tools" value="ports" class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                         <span class="text-gray-700">اسکن پورت‌ها</span>
                     </label>
                     <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
-                        <input type="checkbox" onclick="toggleAll(this)" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <input type="checkbox" id="selectAll" class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                         <span class="text-gray-700">انتخاب همه</span>
                     </label>
                 </div>
             </div>
 
             <button
-                type="submit"
+                id="scanButton"
                 class="btn-gradient w-full text-white font-semibold py-3.5 rounded-xl text-lg transition-all duration-300 flex items-center justify-center space-x-2 space-x-reverse"
             >
                 <span>شروع اسکن</span>
@@ -137,24 +121,130 @@
                     <path d="M5 12h14M12 5l7 7-7 7"></path>
                 </svg>
             </button>
-        </form>
+        </div>
+
+        <div id="resultsContainer" class="hidden mt-8 animate__animated animate__fadeIn">
+            <!-- نتایج اسکن اینجا نمایش داده می‌شود -->
+        </div>
     </div>
-    
+
     <div class="absolute bottom-4 left-0 right-0 text-center text-xs text-gray-500 opacity-70">
         © 2025 طراحی شده توسط استودیو Elaraa 
         <a href="https://instagram.com/elaraa.studio" target="_blank" class="text-indigo-500 hover:text-indigo-600">@elaraa.studio</a>
     </div>
 
     <script>
-        function toggleAll(source) {
-            document.querySelectorAll('input[name="tools"]').forEach(cb => cb.checked = source.checked);
-        }
-        
-        // Add animation to form elements
-        document.querySelectorAll('input, button, label').forEach((el, index) => {
-            el.classList.add('animate__animated', 'animate__fadeInUp');
-            el.style.setProperty('--animate-duration', `${0.3 + index * 0.05}s`);
+        // انتخاب همه ابزارها
+        document.getElementById('selectAll').addEventListener('change', function(e) {
+            document.querySelectorAll('#toolsContainer input[type="checkbox"]').forEach(cb => {
+                if (cb.id !== 'selectAll') {
+                    cb.checked = e.target.checked;
+                }
+            });
         });
+
+        // ارسال فرم با Fetch API
+        document.getElementById('scanButton').addEventListener('click', async function() {
+            const url = document.getElementById('scanUrl').value.trim();
+            const tools = Array.from(document.querySelectorAll('input[name="tools"]:checked')).map(el => el.value);
+            
+            if (!url) {
+                alert('لطفاً آدرس سایت را وارد کنید');
+                return;
+            }
+            
+            if (tools.length === 0) {
+                alert('حداقل یک ابزار را انتخاب کنید');
+                return;
+            }
+
+            // نمایش حالت لودینگ
+            const button = this;
+            button.disabled = true;
+            button.innerHTML = `
+                <span>در حال اسکن...</span>
+                <div class="loading-spinner h-5 w-5 border-2 border-white border-opacity-30 rounded-full"></div>
+            `;
+
+            try {
+                const response = await fetch('/scan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        tools: tools
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResults(data);
+                } else {
+                    alert(data.error || 'خطا در انجام اسکن');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('خطا در ارتباط با سرور');
+            } finally {
+                // بازگرداندن دکمه به حالت اولیه
+                button.disabled = false;
+                button.innerHTML = `
+                    <span>شروع اسکن</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M12 5l7 7-7 7"></path>
+                    </svg>
+                `;
+            }
+        });
+
+        // نمایش نتایج
+        function showResults(data) {
+            const container = document.getElementById('resultsContainer');
+            container.classList.remove('hidden');
+            container.innerHTML = `
+                <h2 class="text-2xl font-bold mb-4 text-center">نتایج اسکن: ${data.url}</h2>
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    ${generateResultHTML(data.results)}
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <h3 class="text-lg font-semibold">امتیاز امنیتی: ${data.score}/100</h3>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" style="width: ${data.score}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // تولید HTML برای نتایج
+        function generateResultHTML(results) {
+            let html = '';
+            for (const [tool, result] of Object.entries(results)) {
+                html += `
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-lg mb-2">${getToolName(tool)}</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <pre class="text-sm whitespace-pre-wrap">${JSON.stringify(result, null, 2)}</pre>
+                        </div>
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        // نام فارسی ابزارها
+        function getToolName(tool) {
+            const names = {
+                'ssl': 'بررسی SSL',
+                'cms': 'شناسایی CMS',
+                'headers': 'بررسی هدرها',
+                'robots': 'فایل robots.txt',
+                'ports': 'اسکن پورت‌ها'
+            };
+            return names[tool] || tool;
+        }
     </script>
 </body>
 </html>

@@ -21,50 +21,25 @@
             font-family: 'Inter', sans-serif;
             background: #f8fafc;
             min-height: 100vh;
-            overflow-x: hidden;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
         
-        .card {
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: all 0.2s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .btn {
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
-        
-        .btn-primary {
+        .btn-gradient {
             background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
         }
         
-        .btn-primary:hover {
+        .btn-gradient:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3), 0 4px 6px -2px rgba(99, 102, 241, 0.1);
-        }
-        
-        .btn-success {
-            background: var(--color-success);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3), 0 4px 6px -2px rgba(16, 185, 129, 0.1);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
         }
         
         .score-circle {
@@ -89,11 +64,17 @@
             max-height: 300px;
         }
         
+        .loading-spinner {
+            border-top-color: var(--color-primary);
+            animation: spinner 0.8s linear infinite;
+        }
+        
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         @media (max-width: 768px) {
-            .container {
-                padding: 0.5rem;
-            }
-            
             .flex-col-mobile {
                 flex-direction: column;
             }
@@ -104,10 +85,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-50">
-    <div class="container">
-        <!-- Header -->
-        <div class="card p-6 mb-6">
+<body class="min-h-screen flex flex-col">
+    <div class="glass-card rounded-b-2xl p-6">
+        <div class="container mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                 <div class="flex items-center space-x-3 space-x-reverse">
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center shadow-inner">
@@ -130,7 +110,6 @@
                 </div>
             </div>
 
-            <!-- Meter -->
             <div class="mt-6">
                 <div class="flex justify-between text-xs text-gray-500 mb-2">
                     <span>ضعیف</span>
@@ -143,12 +122,13 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Results -->
-        <div class="grid gap-4">
+    <div class="container mx-auto flex-1 p-4 pt-8">
+        <div class="grid gap-6">
             {% for tool, result in results.items() %}
-            <div class="card p-5">
-                <div class="flex items-center gap-3 border-b border-gray-200 pb-3 mb-4">
+            <div class="glass-card p-6 rounded-2xl">
+                <div class="flex items-center gap-3 border-b border-gray-200 pb-4 mb-4">
                     <div class="text-indigo-500">
                         {% if tool == "ssl" %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -200,7 +180,7 @@
                 </div>
 
                 <div class="mt-4">
-                    <pre class="p-4 text-sm">{{ result | safe }}</pre>
+                    <pre class="p-4 text-sm bg-gray-50 rounded-lg">{{ result | tojson(indent=2) | safe }}</pre>
                 </div>
 
                 <div class="mt-6">
@@ -258,16 +238,15 @@
             {% endfor %}
         </div>
 
-        <!-- Actions -->
-        <div class="flex flex-col sm:flex-row justify-between gap-4 mt-8 mb-8">
-            <a href="/" class="btn btn-primary px-6 py-3 rounded-xl flex items-center justify-center gap-2">
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8 mb-8">
+            <a href="/" class="btn-gradient text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
                 اسکن جدید
             </a>
-            <button class="btn btn-success px-6 py-3 rounded-xl flex items-center justify-center gap-2 download-report">
+            <button onclick="downloadReport()" class="btn-gradient text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="7 10 12 15 17 10"></polyline>
@@ -284,7 +263,7 @@
     </footer>
 
     <script>
-        document.querySelector('.download-report').addEventListener('click', function() {
+        function downloadReport() {
             const toast = document.createElement('div');
             toast.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate__animated animate__fadeInUp';
             toast.textContent = 'گزارش با موفقیت دانلود شد!';
@@ -294,7 +273,23 @@
                 toast.classList.add('animate__fadeOutDown');
                 setTimeout(() => toast.remove(), 500);
             }, 3000);
-        });
+            
+            // Generate PDF (mock for now)
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text('گزارش امنیتی برای ' + '{{ url }}', 10, 10);
+            doc.save('scanly-report-{{ url }}.pdf');
+        }
+        
+        // Load jsPDF dynamically
+        if (!window.jspdf) {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+            script.onload = () => {
+                window.jspdf = window.jspdf.jsPDF;
+            };
+            document.head.appendChild(script);
+        }
     </script>
 </body>
 </html>
