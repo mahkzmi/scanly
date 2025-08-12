@@ -1,45 +1,47 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html dir="rtl" lang="fa">
 <head>
+    <meta charset="UTF-8">
     <title>گزارش Scanly | {{ url }}</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <div class="report-container">
-        <div class="report-header">
-            <div class="header-content">
-                <h1 class="report-title">
-                    <i class="fas fa-shield-alt"></i>
+<body class="bg-gray-100 font-sans">
+    <div class="max-w-5xl mx-auto p-6">
+        <!-- Header -->
+        <div class="bg-white shadow-lg rounded-2xl p-6 mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <h1 class="text-xl font-bold flex items-center gap-2 text-gray-800">
+                    <i class="fas fa-shield-alt text-blue-600"></i>
                     گزارش امنیتی برای 
-                    <span class="url">{{ url }}</span>
+                    <span class="text-blue-500">{{ url }}</span>
                 </h1>
-                <div class="score-indicator" data-score="{{ score }}">
-                    <div class="score-circle">
-                        <span class="score-value">{{ score }}</span>
-                        <span class="score-total">/100</span>
+                <div class="flex flex-col items-center">
+                    <div class="w-20 h-20 rounded-full border-4 border-blue-500 flex flex-col justify-center items-center">
+                        <span class="text-2xl font-bold">{{ score }}</span>
+                        <span class="text-sm text-gray-500">/100</span>
                     </div>
-                    <div class="score-label">امتیاز کلی</div>
+                    <div class="text-gray-700 font-medium mt-2">امتیاز کلی</div>
                 </div>
             </div>
-            
-            <div class="security-meter">
-                <div class="meter-bar" style="width: {{ score }}%"></div>
-                <div class="meter-labels">
-                    <span>ضعیف</span>
-                    <span>متوسط</span>
-                    <span>خوب</span>
-                    <span>عالی</span>
+
+            <!-- Meter -->
+            <div class="mt-4">
+                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div class="h-3 bg-blue-500" style="width: {{ score }}%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>ضعیف</span><span>متوسط</span><span>خوب</span><span>عالی</span>
                 </div>
             </div>
         </div>
 
-        <div class="results-container">
+        <!-- Results -->
+        <div class="grid gap-6">
             {% for tool, result in results.items() %}
-            <div class="report-card" data-tool="{{ tool }}">
-                <div class="card-header">
-                    <div class="tool-icon">
+            <div class="bg-white shadow-md rounded-xl p-5">
+                <div class="flex items-center gap-3 border-b pb-3 mb-3">
+                    <div class="text-blue-500 text-xl">
                         {% if tool == "ssl" %}
                             <i class="fas fa-lock"></i>
                         {% elif tool == "headers" %}
@@ -54,83 +56,77 @@
                             <i class="fas fa-shield-virus"></i>
                         {% endif %}
                     </div>
-                    <h3 class="tool-title">{{ tool|title }}</h3>
-                    <div class="tool-status"></div>
+                    <h3 class="text-lg font-semibold">{{ tool|title }}</h3>
                 </div>
-                
-                <div class="result-content">
-                    <div class="result-output">
-                        <pre>{{ result | safe }}</pre>
+
+                <div>
+                    <pre class="bg-gray-100 p-3 rounded-lg overflow-x-auto text-sm">{{ result | safe }}</pre>
+                </div>
+
+                <div class="mt-4">
+                    <div class="flex items-center gap-2 text-yellow-500 font-semibold mb-2">
+                        <i class="fas fa-lightbulb"></i>
+                        <h4>راهنمای بهبود امنیتی</h4>
                     </div>
-                    
-                    <div class="improvement-section">
-                        <div class="section-title">
-                            <i class="fas fa-lightbulb"></i>
-                            <h4>راهنمای بهبود امنیتی</h4>
-                        </div>
-                        
-                        <div class="improvement-content">
-                            {% if tool == "ssl" %}
-                                <ul>
-                                    <li><i class="fas fa-check-circle"></i> استفاده از گواهی SSL معتبر (مانند Let's Encrypt)</li>
-                                    <li><i class="fas fa-check-circle"></i> غیرفعال کردن پروتکل‌های قدیمی مانند TLS 1.0 و 1.1</li>
-                                    <li><i class="fas fa-check-circle"></i> تنظیم cipher suites امن و به‌روز</li>
-                                    <li><i class="fas fa-check-circle"></i> فعال کردن HSTS برای امنیت بیشتر</li>
-                                </ul>
-                            {% elif tool == "headers" %}
-                                <ul>
-                                    <li><i class="fas fa-check-circle"></i> اضافه کردن هدرهای امنیتی: X-Frame-Options, CSP, X-XSS-Protection</li>
-                                    <li><i class="fas fa-check-circle"></i> تنظیم هدرهای CORS به درستی</li>
-                                    <li><i class="fas fa-check-circle"></i> حذف هدرهای حساس مانند X-Powered-By</li>
-                                    <li><i class="fas fa-check-circle"></i> استفاده از Referrer-Policy مناسب</li>
-                                </ul>
-                            {% elif tool == "cms" %}
-                                <ul>
-                                    <li><i class="fas fa-check-circle"></i> به‌روزرسانی CMS به آخرین نسخه</li>
-                                    <li><i class="fas fa-check-circle"></i> حذف افزونه‌ها و ماژول‌های بلااستفاده</li>
-                                    <li><i class="fas fa-check-circle"></i> تغییر مسیر پیش‌فرض مدیریت (مثل /admin یا /wp-admin)</li>
-                                    <li><i class="fas fa-check-circle"></i> محدود کردن دسترسی به پنل مدیریت با IP Whitelisting</li>
-                                </ul>
-                            {% elif tool == "robots" %}
-                                <ul>
-                                    <li><i class="fas fa-check-circle"></i> عدم افشای مسیرهای حساس در robots.txt</li>
-                                    <li><i class="fas fa-check-circle"></i> محدود کردن دسترسی به مسیرهای مدیریت از طریق احراز هویت</li>
-                                    <li><i class="fas fa-check-circle"></i> بررسی منظم فایل robots.txt برای جلوگیری از افشای اطلاعات</li>
-                                    <li><i class="fas fa-check-circle"></i> استفاده از disallow برای مسیرهای حساس فقط در کنار سایر مکانیزم‌های امنیتی</li>
-                                </ul>
-                            {% elif tool == "ports" %}
-                                <ul>
-                                    <li><i class="fas fa-check-circle"></i> بستن تمام پورت‌های غیرضروری</li>
-                                    <li><i class="fas fa-check-circle"></i> محدود کردن دسترسی به پورت‌های باز با فایروال</li>
-                                    <li><i class="fas fa-check-circle"></i> غیرفعال کردن سرویس‌های غیرضروری روی سرور</li>
-                                    <li><i class="fas fa-check-circle"></i> مانیتورینگ مداوم پورت‌های باز و فعالیت‌های مشکوک</li>
-                                </ul>
-                            {% else %}
-                                <p class="no-guidance">راهنمای اختصاصی برای این ابزار موجود نیست. لطفاً به مستندات امنیتی مراجعه کنید.</p>
-                            {% endif %}
-                        </div>
+
+                    <div class="text-sm text-gray-700 leading-6">
+                        {% if tool == "ssl" %}
+                            <ul class="list-disc pr-5">
+                                <li>استفاده از گواهی SSL معتبر (مانند Let's Encrypt)</li>
+                                <li>غیرفعال کردن پروتکل‌های قدیمی مانند TLS 1.0 و 1.1</li>
+                                <li>تنظیم cipher suites امن و به‌روز</li>
+                                <li>فعال کردن HSTS برای امنیت بیشتر</li>
+                            </ul>
+                        {% elif tool == "headers" %}
+                            <ul class="list-disc pr-5">
+                                <li>اضافه کردن هدرهای امنیتی: X-Frame-Options, CSP, X-XSS-Protection</li>
+                                <li>تنظیم هدرهای CORS به درستی</li>
+                                <li>حذف هدرهای حساس مانند X-Powered-By</li>
+                                <li>استفاده از Referrer-Policy مناسب</li>
+                            </ul>
+                        {% elif tool == "cms" %}
+                            <ul class="list-disc pr-5">
+                                <li>به‌روزرسانی CMS به آخرین نسخه</li>
+                                <li>حذف افزونه‌ها و ماژول‌های بلااستفاده</li>
+                                <li>تغییر مسیر پیش‌فرض مدیریت</li>
+                                <li>محدود کردن دسترسی به پنل مدیریت با IP Whitelisting</li>
+                            </ul>
+                        {% elif tool == "robots" %}
+                            <ul class="list-disc pr-5">
+                                <li>عدم افشای مسیرهای حساس در robots.txt</li>
+                                <li>محدود کردن دسترسی به مسیرهای مدیریت</li>
+                                <li>بررسی منظم فایل robots.txt</li>
+                                <li>استفاده از disallow فقط در کنار مکانیزم‌های امنیتی دیگر</li>
+                            </ul>
+                        {% elif tool == "ports" %}
+                            <ul class="list-disc pr-5">
+                                <li>بستن تمام پورت‌های غیرضروری</li>
+                                <li>محدود کردن دسترسی به پورت‌های باز با فایروال</li>
+                                <li>غیرفعال کردن سرویس‌های غیرضروری</li>
+                                <li>مانیتورینگ مداوم پورت‌های باز</li>
+                            </ul>
+                        {% else %}
+                            <p>راهنمای اختصاصی برای این ابزار موجود نیست.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
 
-        <div class="actions">
-            <a href="/" class="scan-again-btn">
-                <i class="fas fa-redo"></i>
-                اسکن جدید
+        <!-- Actions -->
+        <div class="flex justify-between mt-8">
+            <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                <i class="fas fa-redo"></i> اسکن جدید
             </a>
-            <button class="download-report">
-                <i class="fas fa-download"></i>
-                دانلود گزارش
+            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition download-report">
+                <i class="fas fa-download"></i> دانلود گزارش
             </button>
         </div>
     </div>
 
     <script>
-        // اسکریپت برای دانلود گزارش
         document.querySelector('.download-report').addEventListener('click', function() {
-            // کد تولید و دانلود گزارش PDF
             alert('گزارش با موفقیت دانلود شد.');
         });
     </script>
