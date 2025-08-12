@@ -2,49 +2,37 @@ import requests
 from urllib.parse import urlparse
 
 def check_robots(url):
-    """
-    بررسی وجود فایل robots.txt و ارزیابی امنیتی محتوا
-
-    پارامترها:
-        url (str): آدرس سایت برای بررسی فایل robots.txt
-
-    خروجی:
-        dict: شامل وضعیت یافتن فایل robots.txt، وجود مسیرهای حساس در آن و یا پیام خطا
-    """
-
     try:
-        # افزودن scheme اگر وجود نداشته باشد
         parsed = urlparse(url)
-        if not parsed.scheme:
-            url = "http://" + url
-            parsed = urlparse(url)
-
-        hostname = parsed.hostname
-        scheme = parsed.scheme
+        scheme = parsed.scheme or "http"
+        hostname = parsed.hostname or parsed.path  # اگر hostname نبود، path رو بذار
 
         if not hostname:
             return {'status': 'invalid url', 'message': 'آدرس وارد شده نامعتبر است.'}
 
-        # ساخت URL کامل robots.txt
-        domain = f"{scheme}://{hostname}"
-        robots_url = domain + "/robots.txt"
+        def fetch_robots(scheme, hostname):
+            url_robots = f"{scheme}://{hostname}/robots.txt"
+            headers = {'User-Agent': 'ScanlyBot/1.0 (+https://scanly.example.com)'}
+            return requests.get(url_robots, timeout=5, headers=headers)
 
-        # درخواست HTTP به robots.txt با timeout مشخص
-        response = requests.get(robots_url, timeout=5)
+        # تلاش اول با scheme اصلی
+        response = fetch_robots(scheme, hostname)
 
-        # بررسی وضعیت پاسخ
+        # اگر کد خطا یا timeout و scheme https بود، fallback به http کن
+        if response.status_code != 200 and scheme == "https":
+            try:
+                response = fetch_robots("http", hostname)
+            except:
+                pass
+
         if response.status_code == 200:
             content = response.text.lower()
-
-            # لیست مسیرهای حساس و پرریسک که نباید در robots.txt مشخص شوند
             sensitive_paths = ["/admin", "/login", "/config", "/.env", "/backup", "/private", "/database"]
-
-            # بررسی وجود مسیرهای پرریسک در محتوا
-            risky = any(path in content for path in sensitive_paths)
+            risky_paths = [p for p in sensitive_paths if p in content]
 
             return {
                 'status': 'found',
-                'risky': risky,
+                'risky_paths': risky_paths,
                 'message': 'فایل robots.txt یافت شد.',
                 'content_snippet': content[:500] + ("..." if len(content) > 500 else "")
             }
