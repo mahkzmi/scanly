@@ -4,61 +4,157 @@
     <meta charset="UTF-8" />
     <title>Scanly | تست امنیت وب‌سایت</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+        }
+        
+        input:focus {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .checkbox:checked {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+        
+        .checkbox {
+            transition: all 0.2s ease;
+        }
+        
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="max-w-lg mx-auto mt-16 bg-white shadow-lg rounded-2xl p-8">
-        <h1 class="text-3xl font-extrabold text-center mb-8 text-gray-800">آیا سایتت امنه؟ 🔍</h1>
-
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="glass-card max-w-lg w-full rounded-2xl p-8 animate__animated animate__fadeIn animate__faster">
+        <div class="flex justify-center mb-6">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-500">
+                    <path d="M12 2a10 10 0 0 0-7.743 16.334l1.985-3.217A6 6 0 0 1 18 8a5.917 5.917 0 0 1-.566 2.6l2.309 1.5A9.955 9.955 0 0 0 22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2Z"></path>
+                    <path d="M8 8h8v8"></path>
+                    <path d="M8 16l5.443-5.444"></path>
+                    <path d="M8 16l3.5-3.5"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800 tracking-tight">آیا سایت شما امن است؟</h1>
+        
         <form method="POST" action="/scan" class="space-y-6">
-            <input
-                type="text"
-                name="url"
-                placeholder="آدرس سایت خود را وارد کنید..."
-                required
-                class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-800 text-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
-            />
+            <div class="relative">
+                <input
+                    type="text"
+                    name="url"
+                    placeholder="آدرس سایت را وارد کنید..."
+                    required
+                    class="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-gray-800 text-lg placeholder-gray-400 focus:outline-none focus:border-indigo-300 bg-white/70 transition-all duration-200"
+                />
+                <div class="absolute left-3 top-3.5 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+            </div>
 
-            <h3 class="font-semibold text-gray-700">ابزارهای مورد نظر:</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none">
-                    <input type="checkbox" name="tools" value="ssl" class="w-5 h-5 text-blue-600 rounded" />
-                    <span>بررسی SSL</span>
-                </label>
-                <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none">
-                    <input type="checkbox" name="tools" value="cms" class="w-5 h-5 text-blue-600 rounded" />
-                    <span>شناسایی CMS</span>
-                </label>
-                <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none">
-                    <input type="checkbox" name="tools" value="headers" class="w-5 h-5 text-blue-600 rounded" />
-                    <span>بررسی هدرهای امنیتی</span>
-                </label>
-                <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none">
-                    <input type="checkbox" name="tools" value="robots" class="w-5 h-5 text-blue-600 rounded" />
-                    <span>فایل robots.txt</span>
-                </label>
-                <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none">
-                    <input type="checkbox" name="tools" value="ports" class="w-5 h-5 text-blue-600 rounded" />
-                    <span>اسکن پورت‌های باز</span>
-                </label>
-                <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none">
-                    <input type="checkbox" onclick="toggleAll(this)" class="w-5 h-5 text-blue-600 rounded" />
-                    <span>انتخاب همه</span>
-                </label>
+            <div>
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    ابزارهای مورد نظر:
+                </h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
+                        <input type="checkbox" name="tools" value="ssl" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <span class="text-gray-700">بررسی SSL</span>
+                    </label>
+                    <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
+                        <input type="checkbox" name="tools" value="cms" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <span class="text-gray-700">شناسایی CMS</span>
+                    </label>
+                    <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
+                        <input type="checkbox" name="tools" value="headers" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <span class="text-gray-700">بررسی هدرها</span>
+                    </label>
+                    <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
+                        <input type="checkbox" name="tools" value="robots" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <span class="text-gray-700">فایل robots.txt</span>
+                    </label>
+                    <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
+                        <input type="checkbox" name="tools" value="ports" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <span class="text-gray-700">اسکن پورت‌ها</span>
+                    </label>
+                    <label class="flex items-center space-x-3 space-x-reverse cursor-pointer select-none p-3 rounded-lg hover:bg-gray-50/50 transition">
+                        <input type="checkbox" onclick="toggleAll(this)" class="checkbox w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <span class="text-gray-700">انتخاب همه</span>
+                    </label>
+                </div>
             </div>
 
             <button
                 type="submit"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200"
+                class="btn-gradient w-full text-white font-semibold py-3.5 rounded-xl text-lg transition-all duration-300 flex items-center justify-center space-x-2 space-x-reverse"
             >
-                🚀 شروع اسکن
+                <span>شروع اسکن</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"></path>
+                </svg>
             </button>
         </form>
+    </div>
+    
+    <div class="absolute bottom-4 left-0 right-0 text-center text-xs text-gray-500 opacity-70">
+        © 2025 طراحی شده توسط استودیو Elaraa 
+        <a href="https://instagram.com/elaraa.studio" target="_blank" class="text-indigo-500 hover:text-indigo-600">@elaraa.studio</a>
     </div>
 
     <script>
         function toggleAll(source) {
             document.querySelectorAll('input[name="tools"]').forEach(cb => cb.checked = source.checked);
         }
+        
+        // Add animation to form elements
+        document.querySelectorAll('input, button, label').forEach((el, index) => {
+            el.classList.add('animate__animated', 'animate__fadeInUp');
+            el.style.setProperty('--animate-duration', `${0.3 + index * 0.05}s`);
+        });
     </script>
 </body>
 </html>

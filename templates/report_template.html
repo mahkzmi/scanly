@@ -4,21 +4,94 @@
     <meta charset="UTF-8">
     <title>گزارش Scanly | {{ url }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+        }
+        
+        .btn-green {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);
+        }
+        
+        .btn-green:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 161, 105, 0.4);
+        }
+        
+        .score-circle {
+            border: 4px solid;
+            border-image-slice: 1;
+            border-image-source: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+        }
+        
+        pre {
+            background: rgba(241, 245, 249, 0.7);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(31, 38, 135, 0.2);
+        }
+        
+        .tool-card {
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="max-w-5xl mx-auto p-6">
+<body>
+    <div class="max-w-5xl mx-auto animate__animated animate__fadeIn">
         <!-- Header -->
-        <div class="bg-white shadow-lg rounded-2xl p-6 mb-6">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <h1 class="text-xl font-bold flex items-center gap-2 text-gray-800">
-                    <i class="fas fa-shield-alt text-blue-600"></i>
-                    گزارش امنیتی برای 
-                    <span class="text-blue-500">{{ url }}</span>
-                </h1>
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center shadow-inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-500">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-800">
+                        گزارش امنیتی برای
+                        <span class="text-indigo-500">{{ url }}</span>
+                    </h1>
+                </div>
+                
                 <div class="flex flex-col items-center">
-                    <div class="w-20 h-20 rounded-full border-4 border-blue-500 flex flex-col justify-center items-center">
-                        <span class="text-2xl font-bold">{{ score }}</span>
+                    <div class="score-circle w-20 h-20 rounded-full flex flex-col justify-center items-center bg-white/70">
+                        <span class="text-2xl font-bold text-gray-800">{{ score }}</span>
                         <span class="text-sm text-gray-500">/100</span>
                     </div>
                     <div class="text-gray-700 font-medium mt-2">امتیاز کلی</div>
@@ -26,12 +99,15 @@
             </div>
 
             <!-- Meter -->
-            <div class="mt-4">
-                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                    <div class="h-3 bg-blue-500" style="width: {{ score }}%"></div>
+            <div class="mt-6">
+                <div class="flex justify-between text-xs text-gray-500 mb-2">
+                    <span>ضعیف</span>
+                    <span>متوسط</span>
+                    <span>خوب</span>
+                    <span>عالی</span>
                 </div>
-                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>ضعیف</span><span>متوسط</span><span>خوب</span><span>عالی</span>
+                <div class="progress-bar w-full rounded-full overflow-hidden">
+                    <div class="h-full bg-white/30" style="width: calc(100% - {{ score }}%)"></div>
                 </div>
             </div>
         </div>
@@ -39,74 +115,110 @@
         <!-- Results -->
         <div class="grid gap-6">
             {% for tool, result in results.items() %}
-            <div class="bg-white shadow-md rounded-xl p-5">
-                <div class="flex items-center gap-3 border-b pb-3 mb-3">
-                    <div class="text-blue-500 text-xl">
+            <div class="glass-card tool-card rounded-xl p-5">
+                <div class="flex items-center gap-3 border-b border-gray-200 pb-3 mb-4">
+                    <div class="text-indigo-500">
                         {% if tool == "ssl" %}
-                            <i class="fas fa-lock"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
                         {% elif tool == "headers" %}
-                            <i class="fas fa-code"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <path d="M8 9h1"></path>
+                                <path d="M8 12h1"></path>
+                                <path d="M8 15h1"></path>
+                                <path d="M12 9h1"></path>
+                                <path d="M12 12h1"></path>
+                            </svg>
                         {% elif tool == "cms" %}
-                            <i class="fas fa-cube"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <path d="M3.27 6.96L12 12.01l8.73-5.05"></path>
+                                <path d="M12 22.08V12"></path>
+                            </svg>
                         {% elif tool == "robots" %}
-                            <i class="fas fa-robot"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 8V4H8"></path>
+                                <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                                <path d="M6 18v-2a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v2"></path>
+                                <path d="M18 8h2"></path>
+                                <path d="M17 3.1a6.003 6.003 0 0 1 0 11.8"></path>
+                            </svg>
                         {% elif tool == "ports" %}
-                            <i class="fas fa-plug"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                <path d="M13 2v7h7"></path>
+                                <path d="M8 13h.01"></path>
+                                <path d="M16 13h.01"></path>
+                                <path d="M12 13h.01"></path>
+                                <path d="M12 16h.01"></path>
+                                <path d="M12 19h.01"></path>
+                            </svg>
                         {% else %}
-                            <i class="fas fa-shield-virus"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
                         {% endif %}
                     </div>
-                    <h3 class="text-lg font-semibold">{{ tool|title }}</h3>
-                </div>
-
-                <div>
-                    <pre class="bg-gray-100 p-3 rounded-lg overflow-x-auto text-sm">{{ result | safe }}</pre>
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        {{ tool|replace("ssl", "SSL")|replace("headers", "هدرهای امنیتی")|replace("cms", "شناسایی CMS")|replace("robots", "فایل robots.txt")|replace("ports", "اسکن پورت‌ها") }}
+                    </h3>
                 </div>
 
                 <div class="mt-4">
-                    <div class="flex items-center gap-2 text-yellow-500 font-semibold mb-2">
-                        <i class="fas fa-lightbulb"></i>
+                    <pre class="p-4 text-sm">{{ result | safe }}</pre>
+                </div>
+
+                <div class="mt-6">
+                    <div class="flex items-center gap-2 text-amber-500 font-semibold mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
                         <h4>راهنمای بهبود امنیتی</h4>
                     </div>
 
                     <div class="text-sm text-gray-700 leading-6">
                         {% if tool == "ssl" %}
-                            <ul class="list-disc pr-5">
+                            <ul class="list-disc pr-5 space-y-2">
                                 <li>استفاده از گواهی SSL معتبر (مانند Let's Encrypt)</li>
                                 <li>غیرفعال کردن پروتکل‌های قدیمی مانند TLS 1.0 و 1.1</li>
                                 <li>تنظیم cipher suites امن و به‌روز</li>
                                 <li>فعال کردن HSTS برای امنیت بیشتر</li>
                             </ul>
                         {% elif tool == "headers" %}
-                            <ul class="list-disc pr-5">
+                            <ul class="list-disc pr-5 space-y-2">
                                 <li>اضافه کردن هدرهای امنیتی: X-Frame-Options, CSP, X-XSS-Protection</li>
                                 <li>تنظیم هدرهای CORS به درستی</li>
                                 <li>حذف هدرهای حساس مانند X-Powered-By</li>
                                 <li>استفاده از Referrer-Policy مناسب</li>
                             </ul>
                         {% elif tool == "cms" %}
-                            <ul class="list-disc pr-5">
+                            <ul class="list-disc pr-5 space-y-2">
                                 <li>به‌روزرسانی CMS به آخرین نسخه</li>
                                 <li>حذف افزونه‌ها و ماژول‌های بلااستفاده</li>
                                 <li>تغییر مسیر پیش‌فرض مدیریت</li>
                                 <li>محدود کردن دسترسی به پنل مدیریت با IP Whitelisting</li>
                             </ul>
                         {% elif tool == "robots" %}
-                            <ul class="list-disc pr-5">
+                            <ul class="list-disc pr-5 space-y-2">
                                 <li>عدم افشای مسیرهای حساس در robots.txt</li>
                                 <li>محدود کردن دسترسی به مسیرهای مدیریت</li>
                                 <li>بررسی منظم فایل robots.txt</li>
                                 <li>استفاده از disallow فقط در کنار مکانیزم‌های امنیتی دیگر</li>
                             </ul>
                         {% elif tool == "ports" %}
-                            <ul class="list-disc pr-5">
+                            <ul class="list-disc pr-5 space-y-2">
                                 <li>بستن تمام پورت‌های غیرضروری</li>
                                 <li>محدود کردن دسترسی به پورت‌های باز با فایروال</li>
                                 <li>غیرفعال کردن سرویس‌های غیرضروری</li>
                                 <li>مانیتورینگ مداوم پورت‌های باز</li>
                             </ul>
                         {% else %}
-                            <p>راهنمای اختصاصی برای این ابزار موجود نیست.</p>
+                            <p class="text-gray-600">راهنمای اختصاصی برای این ابزار موجود نیست.</p>
                         {% endif %}
                     </div>
                 </div>
@@ -115,19 +227,53 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex justify-between mt-8">
-            <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
-                <i class="fas fa-redo"></i> اسکن جدید
+        <div class="flex flex-col sm:flex-row justify-between gap-4 mt-8">
+            <a href="/" class="btn-gradient text-white px-6 py-3 rounded-xl transition flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                اسکن جدید
             </a>
-            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition download-report">
-                <i class="fas fa-download"></i> دانلود گزارش
+            <button class="btn-green text-white px-6 py-3 rounded-xl transition flex items-center justify-center gap-2 download-report">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                دانلود گزارش
             </button>
         </div>
     </div>
 
+    <div class="absolute bottom-4 left-0 right-0 text-center text-xs text-gray-500 opacity-70">
+        © 2025 طراحی شده توسط استودیو Elaraa 
+        <a href="https://instagram.com/elaraa.studio" target="_blank" class="text-indigo-500 hover:text-indigo-600">@elaraa.studio</a>
+    </div>
+
     <script>
         document.querySelector('.download-report').addEventListener('click', function() {
-            alert('گزارش با موفقیت دانلود شد.');
+            // Create a nice toast notification
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate__animated animate__fadeInUp animate__faster';
+            toast.textContent = 'گزارش با موفقیت دانلود شد!';
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('animate__fadeOutDown');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        });
+        
+        // Add hover animations to tool cards
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('animate__animated', 'animate__pulse', 'animate__faster');
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('animate__animated', 'animate__pulse', 'animate__faster');
+            });
         });
     </script>
 </body>
