@@ -1,51 +1,50 @@
 import socket
 from urllib.parse import urlparse
+from concurrent.futures import ThreadPoolExecutor
+import time
 
-def scan_ports(url, ports=None, timeout=1.0):
-    """
-    اسکن پورت‌های رایج برای یک دامنه یا IP مشخص شده
+def scan_port(host, port, timeout):
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(timeout)
+            if sock.connect_ex((host, port)) == 0:
+                return port
+    except:
+        return None
+    return None
 
-    پارامترها:
-        url (str): آدرس وب‌سایت یا IP برای اسکن پورت‌ها
-        ports (list[int], optional): لیست پورت‌هایی که باید بررسی شوند (اگر None باشد، پورت‌های پیش‌فرض استفاده می‌شوند)
-        timeout (float, optional): مدت زمان تایم‌اوت اتصال به هر پورت (ثانیه)
-
-    خروجی:
-        dict: شامل کلید 'open_ports' با لیست پورت‌های باز یا کلید 'error' در صورت بروز خطا
-    """
-
-    # پورت‌های پیش‌فرض اگر ورودی داده نشود
+def scan_ports(url, ports=None, timeout=1.0, max_threads=20):
     if ports is None:
-        ports = [21, 22, 23, 80, 443, 3306, 8080]
+        ports = [21, 22, 23, 25, 53, 80, 110, 143, 443, 3306, 8080]
 
-    # تحلیل URL و استخراج hostname یا IP
+    # اطمینان از وجود پروتکل برای urlparse
+    if "://" not in url:
+        url = "http://" + url
+
     try:
         parsed_url = urlparse(url)
         host = parsed_url.hostname
-
         if not host:
-            return {'error': 'آدرس URL نامعتبر است و نمی‌توان hostname را استخراج کرد.'}
+            return {'status': 'error', 'message': 'آدرس نامعتبر'}
 
-    except Exception as e:
-        return {'error': f'خطا در پردازش URL: {str(e)}'}
+        start_time = time.time()
+        open_ports = []
 
-    open_ports = []
+        with ThreadPoolExecutor(max_workers=max_threads) as executor:
+            results = executor.map(lambda p: scan_port(host, p, timeout), ports)
+            open_ports = [p for p in results if p is not None]
 
-    try:
-        for port in ports:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.settimeout(timeout)
-                result = sock.connect_ex((host, port))
-                if result == 0:
-                    open_ports.append(port)
+        end_time = time.time()
 
-        return {'open_ports': open_ports}
+        return {
+            'status': 'success',
+            'host': host,
+            'open_ports': open_ports,
+            'scanned_ports': ports,
+            'scan_time_sec': round(end_time - start_time, 2)
+        }
 
-    except socket.timeout:
-        return {'error': 'اتصال به یکی از پورت‌ها تایم‌اوت شد.'}
     except socket.gaierror:
-        return {'error': 'خطا در تبدیل نام دامنه به IP.'}
-    except socket.error as err:
-        return {'error': f'خطای شبکه: {str(err)}'}
+        return {'status': 'error', 'message': 'خطا در تبدیل دامنه به IP'}
     except Exception as e:
-        return {'error': f'خطای ناشناخته: {str(e)}'}
+        return {'status': 'error', 'message': str(e)}
