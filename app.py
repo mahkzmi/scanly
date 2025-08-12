@@ -1,14 +1,21 @@
+import logging
 from flask import Flask, request, render_template, jsonify
+from urllib.parse import urlparse
+import validators
+
 from scanner.ssl_check import check_ssl
 from scanner.cms_detector import detect_cms
 from scanner.headers_check import check_headers
 from scanner.robots_check import check_robots
 from scanner.port_scan import scan_ports
-from urllib.parse import urlparse
-import re
 
 app = Flask(__name__)
 
+# تنظیمات لاگ (اختیاری)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# نگاشت ابزارهای قابل استفاده
 tool_map = {
     'ssl': check_ssl,
     'cms': detect_cms,
@@ -17,21 +24,16 @@ tool_map = {
     'ports': scan_ports
 }
 
-def normalize_url(url):
+def normalize_url(url: str) -> str:
+    """اضافه کردن https:// اگر scheme وجود نداشته باشد"""
     parsed = urlparse(url)
     if not parsed.scheme:
         return 'https://' + url
     return url
 
-def is_valid_url(url):
-    # بررسی ساده صحت URL (می‌توان پیشرفته‌تر کرد)
-    regex = re.compile(
-        r'^(?:http|https)://'  # پروتکل حتما باید باشد
-        r'([a-zA-Z0-9\-\.]+)'  # دامنه یا IP
-        r'(:[0-9]+)?'          # پورت اختیاری
-        r'(\/.*)?$'            # مسیر اختیاری
-    )
-    return re.match(regex, url) is not None
+def is_valid_url(url: str) -> bool:
+    """اعتبارسنجی استاندارد URL با استفاده از کتابخانه validators"""
+    return validators.url(url)
 
 @app.route('/')
 def home():
@@ -39,86 +41,107 @@ def home():
 
 @app.route('/scan', methods=['POST'])
 def scan():
-    raw_url = request.form.get('url', '').strip()
-    selected_tools = request.form.getlist('tools')
+    try:
+        raw_url = request.form.get('url', '').strip()
+        selected_tools = request.form.getlist('tools')
 
-    if not raw_url:
-        return render_template('index.html', error="لطفاً یک آدرس وارد کنید.")
+        if not raw_url:
+            return render_template('index.html', error="لطفاً یک آدرس وارد کنید.")
 
-    if not selected_tools:
-        return render_template('index.html', error="هیچ ابزاری برای بررسی انتخاب نشده است.")
+        if not selected_tools:
+            return render_template('index.html', error="هیچ ابزاری برای بررسی انتخاب نشده است.")
 
-    url = normalize_url(raw_url)
+        url = normalize_url(raw_url)
 
-    if not is_valid_url(url):
-        return render_template('index.html', error="آدرس وارد شده معتبر نیست.")
+        if not is_valid_url(url):
+            return render_template('index.html', error="آدرس وارد شده معتبر نیست.")
 
-    results = {}
-    for tool in selected_tools:
-        func = tool_map.get(tool)
-        if func:
+        # محدود کردن ابزارها فقط به ابزارهای مجاز (امنیت)
+        selected_tools = [tool for tool in selected_tools if tool in tool_map]
+
+        results = {}
+        for tool in selected_tools:
+            func = tool_map[tool]
             try:
                 results[tool] = func(url)
             except Exception as e:
+                logger.error(f"Error running tool {tool} on {url}: {e}")
                 results[tool] = {'error': f'خطا در اجرای ابزار {tool}: {str(e)}'}
 
-    score = evaluate_score(results)
+        score = evaluate_score(results)
 
-    return render_template('report_template.html', url=url, results=results, score=score)
+        return render_template('report_template.html', url=url, results=results, score=score)
+
+    except Exception as e:
+        logger.exception("Unexpected error in /scan endpoint")
+        return render_template('index.html', error="خطای داخلی رخ داده است. لطفاً دوباره تلاش کنید.")
 
 @app.route('/api/scan', methods=['POST'])
 def api_scan():
-    data = request.get_json(force=True)
-    raw_url = data.get('url', '').strip()
-    selected_tools = data.get('tools', [])
+    try:
+        data = request.get_json(force=True)
+        raw_url = data.get('url', '').strip()
+        selected_tools = data.get('tools', [])
 
-    if not raw_url:
-        return jsonify({'error': 'لطفاً یک آدرس وارد کنید.'}), 400
+        if not raw_url:
+            return jsonify({'error': 'لطفاً یک آدرس وارد کنید.'}), 400
 
-    if not selected_tools:
-        return jsonify({'error': 'هیچ ابزاری برای بررسی انتخاب نشده است.'}), 400
+        if not selected_tools:
+            return jsonify({'error': 'هیچ ابزاری برای بررسی انتخاب نشده است.'}), 400
 
-    url = normalize_url(raw_url)
+        url = normalize_url(raw_url)
 
-    if not is_valid_url(url):
-        return jsonify({'error': 'آدرس وارد شده معتبر نیست.'}), 400
+        if not is_valid_url(url):
+            return jsonify({'error': 'آدرس وارد شده معتبر نیست.'}), 400
 
-    results = {}
-    for tool in selected_tools:
-        func = tool_map.get(tool)
-        if func:
+        selected_tools = [tool for tool in selected_tools if tool in tool_map]
+
+        results = {}
+        for tool in selected_tools:
+            func = tool_map[tool]
             try:
                 results[tool] = func(url)
             except Exception as e:
+                logger.error(f"Error running tool {tool} on {url}: {e}")
                 results[tool] = {'error': f'خطا در اجرای ابزار {tool}: {str(e)}'}
 
-    score = evaluate_score(results)
-    return jsonify({'url': url, 'results': results, 'score': score})
+        score = evaluate_score(results)
 
-def evaluate_score(results):
+        return jsonify({'url': url, 'results': results, 'score': score})
+
+    except Exception as e:
+        logger.exception("Unexpected error in /api/scan endpoint")
+        return jsonify({'error': 'خطای داخلی رخ داده است.'}), 500
+
+def evaluate_score(results: dict) -> int:
+    """
+    محاسبه امتیاز کلی امنیت بر اساس نتایج ابزارها
+    """
     score = 0
 
     ssl = results.get('ssl', {})
     if ssl.get('status') == 'secure':
-        if ssl.get('issuer') and 'self' not in ssl.get('issuer').lower():
+        issuer = ssl.get('issuer', '').lower()
+        if issuer and 'self' not in issuer:
             score += 20
         else:
             score += 10
 
     headers = results.get('headers', {})
     if isinstance(headers, dict):
-        h_score = 0
-        if headers.get('X-Frame-Options'): h_score += 5
-        if headers.get('Content-Security-Policy'): h_score += 5
-        if headers.get('Strict-Transport-Security'): h_score += 5
-        if headers.get('Referrer-Policy'): h_score += 5
-        score += h_score
+        header_points = 0
+        if headers.get('X-Frame-Options'): header_points += 5
+        if headers.get('Content-Security-Policy'): header_points += 5
+        if headers.get('Strict-Transport-Security'): header_points += 5
+        if headers.get('Referrer-Policy'): header_points += 5
+        score += header_points
 
-    if results.get('cms') and results['cms'] != 'Unknown':
+    cms = results.get('cms')
+    if cms and cms != 'Unknown':
         score += 10
 
     robots = results.get('robots', {})
-    if robots.get('status') == 'found' and not robots.get('risky', False):
+    if robots.get('status') == 'found' and not robots.get('risky_paths'):
         score += 10
 
     ports = results.get('ports', {}).get('open_ports', [])
