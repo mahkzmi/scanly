@@ -3,56 +3,54 @@ import socket
 from urllib.parse import urlparse
 from datetime import datetime
 
-def check_ssl(url):
-    """
-    بررسی وضعیت گواهی SSL سایت و بازگرداندن اطلاعات کلیدی آن
-
-    پارامترها:
-        url (str): آدرس سایت برای بررسی گواهی SSL
-
-    خروجی:
-        dict: شامل وضعیت امنیتی، صادرکننده گواهی، تاریخ انقضا و یا خطا
-    """
+def check_ssl(url, port=443):
     try:
-        # افزودن scheme در صورت نبودن
         parsed = urlparse(url)
-        if not parsed.scheme:
-            url = "https://" + url
-            parsed = urlparse(url)
+        scheme = parsed.scheme.lower() if parsed.scheme else ''
+        hostname = parsed.hostname or parsed.path  # fallback
 
-        hostname = parsed.hostname
         if not hostname:
             return {'status': 'error', 'message': 'آدرس نامعتبر است.'}
 
-        # ایجاد کانتکست SSL با تنظیمات پیش‌فرض (رعایت استانداردها)
+        # اگر scheme نبود یا http بود، تبدیل به https می‌کنیم
+        if scheme != 'https':
+            scheme = 'https'
+
         context = ssl.create_default_context()
 
-        # اتصال TCP به پورت 443
-        with socket.create_connection((hostname, 443), timeout=5) as sock:
+        with socket.create_connection((hostname, port), timeout=5) as sock:
             with context.wrap_socket(sock, server_hostname=hostname) as ssock:
                 cert = ssock.getpeercert()
 
-                # استخراج تاریخ انقضای گواهی
                 expire_date_str = cert.get('notAfter')
-                expire_date = datetime.strptime(expire_date_str, "%b %d %H:%M:%S %Y %Z")
+                try:
+                    expire_date = datetime.strptime(expire_date_str, "%b %d %H:%M:%S %Y %Z")
+                except Exception:
+                    expire_date = None
 
-                # استخراج نام صادرکننده گواهی
-                issuer = cert.get('issuer')
-                issuer_common_name = None
-                if issuer:
-                    for tup in issuer:
-                        for key, value in tup:
-                            if key == 'commonName':
-                                issuer_common_name = value
-                                break
-                        if issuer_common_name:
+                issuer = cert.get('issuer', ())
+                issuer_common_name = 'ناشناس'
+                for rdn in issuer:
+                    for key, value in rdn:
+                        if key == 'commonName':
+                            issuer_common_name = value
                             break
 
+                days_to_expire = (expire_date - datetime.utcnow()).days if expire_date else None
+
+                status = 'secure'
+                message = 'گواهی SSL معتبر است.'
+
+                if days_to_expire is not None and days_to_expire <= 30:
+                    status = 'warning'
+                    message = f'گواهی SSL کمتر از ۳۰ روز دیگر منقضی می‌شود! ({days_to_expire} روز مانده)'
+
                 return {
-                    'status': 'secure',
-                    'issuer': issuer_common_name or 'ناشناس',
-                    'expires': expire_date.strftime('%Y-%m-%d'),
-                    'days_to_expire': (expire_date - datetime.utcnow()).days
+                    'status': status,
+                    'issuer': issuer_common_name,
+                    'expires': expire_date.strftime('%Y-%m-%d') if expire_date else 'نامشخص',
+                    'days_to_expire': days_to_expire,
+                    'message': message
                 }
 
     except ssl.SSLError as e:
